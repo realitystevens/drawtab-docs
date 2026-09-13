@@ -2,6 +2,8 @@ import { Footer, Layout, Navbar } from 'nextra-theme-docs'
 import { Head } from 'nextra/components'
 import { getPageMap } from 'nextra/page-map'
 import type { ReactNode } from 'react'
+import Image from 'next/image'
+import { inter, bricolage } from './fonts'
 import 'nextra-theme-docs/style.css'
 import './globals.css'
 
@@ -17,16 +19,45 @@ export const metadata = {
   },
 }
 
-const navbar = <Navbar logo={<b>Drawtab</b>} />
+const navbar = (
+  <Navbar
+    logo={
+      <Image src="/logo.svg" alt="Drawtab" width={135} height={30} priority />
+    }
+    logoLink="/"
+    projectLink="https://workspace.drawtab.app"
+    chatLink="https://drawtab.app"
+  />
+)
 
-const footer = <Footer>Drawtab</Footer>
+const footer = (
+  <Footer>
+    <span>
+      © {new Date().getFullYear()} Drawtab ·{' '}
+      <a href="https://drawtab.app" target="_blank" rel="noreferrer">
+        drawtab.app
+      </a>{' '}
+      ·{' '}
+      <a href="https://workspace.drawtab.app" target="_blank" rel="noreferrer">
+        Dashboard
+      </a>
+    </span>
+  </Footer>
+)
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" dir="ltr" suppressHydrationWarning>
+    <html lang="en" dir="ltr" suppressHydrationWarning className={`${inter.variable} ${bricolage.variable}`}>
       <Head />
       <body>
-        <Layout navbar={navbar} pageMap={await getPageMap()} footer={footer}>
+        <Layout
+          navbar={navbar}
+          pageMap={await getPageMap()}
+          docsRepositoryBase="https://github.com/drawtab/drawtab-docs"
+          editLink="Edit this page on GitHub"
+          sidebar={{ defaultMenuCollapseLevel: 1 }}
+          footer={footer}
+        >
           {children}
         </Layout>
       </body>

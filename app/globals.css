@@ -1,3 +1,74 @@
 :root {
   --x-color-primary-600: 37 99 235; /* #2563eb — matches Drawtab's brand primary */
 }
+
+body {
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-bricolage), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Title + description link cards, used on the Introduction page.
+   Nextra's built-in <Cards.Card> is designed for an image/icon "cover" (its
+   children render unpadded, above a separately-padded title bar) rather than
+   a title+description pattern, which looked misaligned when repurposed for
+   that. This is a small purpose-built alternative with consistent padding
+   on both the title and the description. */
+.doc-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.doc-card {
+  display: block;
+  padding: 1rem 1.25rem;
+  border-radius: 0.75rem;
+  border: 1px solid #e5e7eb;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.doc-card:hover {
+  border-color: #94a3b8;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.06);
+}
+
+.doc-card-title {
+  display: block;
+  font-weight: 600;
+  color: #0f172a;
+  margin-bottom: 0.25rem;
+}
+
+.doc-card-description {
+  display: block;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  color: #64748b;
+}
+
+.dark .doc-card {
+  border-color: #27272a;
+}
+
+.dark .doc-card:hover {
+  border-color: #52525b;
+}
+
+.dark .doc-card-title {
+  color: #f4f4f5;
+}
+
+.dark .doc-card-description {
+  color: #a1a1aa;
+}

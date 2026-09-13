@@ -1,5 +1,3 @@
-import { Cards } from 'nextra/components'
-
 # Drawtab
 
 Drawtab is an API for generating dynamic images and graphics on demand — event passes, social cards, certificates, badges, banners, and any other graphic that needs to be personalized per-recipient and produced at scale. You describe a canvas (or point at a saved template) and Drawtab renders a PNG, JPEG, WebP, or AVIF back to you, synchronously, over HTTP.
@@ -19,29 +17,38 @@ It's built for teams that currently generate this kind of image by hand in a des
 3. **Call `POST /v1/render`** with either a `templateId` + the values to fill in, or a fully custom `canvas` + `layers` description.
 4. **Get back an image** — as JSON (base64 + a data URL) or a raw binary stream, your choice.
 
-<Cards.Card title="Quickstart" href="/quickstart">
-  Generate a key and render your first image in about five minutes.
-</Cards.Card>
+<div className="doc-card-grid" style={{ gridTemplateColumns: '1fr' }}>
+  <a className="doc-card" href="/quickstart">
+    <span className="doc-card-title">Quickstart →</span>
+    <span className="doc-card-description">Generate a key and render your first image in about five minutes.</span>
+  </a>
+</div>
 
 ## What's in these docs
 
-<Cards num={2}>
-  <Cards.Card title="Authentication" href="/authentication">
-    Key format, scopes, hashing, and revocation.
-  </Cards.Card>
-  <Cards.Card title="API Reference" href="/api-reference/render">
-    The full `POST /v1/render` request/response contract.
-  </Cards.Card>
-  <Cards.Card title="Rate Limits" href="/rate-limits">
-    Per-key limits and how to handle `429`s.
-  </Cards.Card>
-  <Cards.Card title="Billing & Credits" href="/billing-and-credits">
-    Cost per render, plans, and what happens at zero balance.
-  </Cards.Card>
-  <Cards.Card title="Templates" href="/templates">
-    Hotspots, variables, and when to use a template vs. a custom canvas.
-  </Cards.Card>
-  <Cards.Card title="SDKs & Examples" href="/sdks-examples">
-    Copy-paste cURL, Node.js, and Python examples.
-  </Cards.Card>
-</Cards>
+<div className="doc-card-grid">
+  <a className="doc-card" href="/authentication">
+    <span className="doc-card-title">Authentication</span>
+    <span className="doc-card-description">Key format, scopes, hashing, and revocation.</span>
+  </a>
+  <a className="doc-card" href="/api-reference/render">
+    <span className="doc-card-title">API Reference</span>
+    <span className="doc-card-description">The full POST /v1/render request/response contract.</span>
+  </a>
+  <a className="doc-card" href="/rate-limits">
+    <span className="doc-card-title">Rate Limits</span>
+    <span className="doc-card-description">Per-key limits and how to handle 429s.</span>
+  </a>
+  <a className="doc-card" href="/billing-and-credits">
+    <span className="doc-card-title">Billing & Credits</span>
+    <span className="doc-card-description">Cost per render, plans, and what happens at zero balance.</span>
+  </a>
+  <a className="doc-card" href="/templates">
+    <span className="doc-card-title">Templates</span>
+    <span className="doc-card-description">Hotspots, variables, and when to use a template vs. a custom canvas.</span>
+  </a>
+  <a className="doc-card" href="/sdks-examples">
+    <span className="doc-card-title">SDKs & Examples</span>
+    <span className="doc-card-description">Copy-paste cURL, Node.js, and Python examples.</span>
+  </a>
+</div>
