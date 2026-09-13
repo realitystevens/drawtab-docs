@@ -1,0 +1,141 @@
+import { Steps, Tabs } from 'nextra/components'
+
+# Quickstart
+
+Get from zero to a rendered image in about five minutes.
+
+## Prerequisites
+
+- A Drawtab account and workspace ([sign up](https://workspace.drawtab.app) if you don't have one)
+- `curl`, or any HTTP client / language of your choice
+
+<Steps>
+
+### Generate an API key
+
+In the [dashboard](https://workspace.drawtab.app), go to **Developers → API Keys → Generate Key**. Give it a name and select the `render:write` scope (selected by default).
+
+Your key looks like `dt_live_a1b2c3...` and is shown **exactly once**. Copy it now — Drawtab stores only a hash of it, so it can't be shown to you again. If you lose it, revoke it and generate a new one.
+
+### Make your first request
+
+<Tabs items={['cURL', 'Node.js', 'Python']}>
+  <Tabs.Tab>
+    ```bash
+    curl -X POST https://api.drawtab.app/v1/render \
+      -H "Authorization: Bearer dt_live_YOUR_KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "canvas": { "width": 800, "height": 418, "backgroundColor": "#0f172a" },
+        "layers": [
+          {
+            "type": "text",
+            "x": 40, "y": 160, "width": 720, "height": 100,
+            "text": "Hello from Drawtab",
+            "fontFamily": "Inter",
+            "fontSize": 48,
+            "fontWeight": "bold",
+            "color": "#ffffff"
+          }
+        ],
+        "format": "png",
+        "responseType": "json"
+      }'
+    ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+    ```js
+    const res = await fetch('https://api.drawtab.app/v1/render', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${process.env.DRAWTAB_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        canvas: { width: 800, height: 418, backgroundColor: '#0f172a' },
+        layers: [
+          {
+            type: 'text',
+            x: 40, y: 160, width: 720, height: 100,
+            text: 'Hello from Drawtab',
+            fontFamily: 'Inter',
+            fontSize: 48,
+            fontWeight: 'bold',
+            color: '#ffffff',
+          },
+        ],
+        format: 'png',
+        responseType: 'json',
+      }),
+    })
+
+    const data = await res.json()
+    console.log(data.dataUrl) // data:image/png;base64,...
+    ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+    ```python
+    import os
+    import requests
+
+    res = requests.post(
+        "https://api.drawtab.app/v1/render",
+        headers={
+            "Authorization": f"Bearer {os.environ['DRAWTAB_API_KEY']}",
+            "Content-Type": "application/json",
+        },
+        json={
+            "canvas": {"width": 800, "height": 418, "backgroundColor": "#0f172a"},
+            "layers": [
+                {
+                    "type": "text",
+                    "x": 40, "y": 160, "width": 720, "height": 100,
+                    "text": "Hello from Drawtab",
+                    "fontFamily": "Inter",
+                    "fontSize": 48,
+                    "fontWeight": "bold",
+                    "color": "#ffffff",
+                }
+            ],
+            "format": "png",
+            "responseType": "json",
+        },
+    )
+
+    data = res.json()
+    print(data["dataUrl"])
+    ```
+  </Tabs.Tab>
+</Tabs>
+
+### Look at the result
+
+With `responseType: "json"`, the response body includes a ready-to-use `dataUrl` you can drop straight into an `<img src>` or save to disk, plus a `billing` block showing how many render credits are left on your workspace.
+
+Prefer the raw image bytes instead of JSON? Set `"responseType": "binary"` (or omit `responseType` and read `Content-Type` from the response) and the body is the image itself.
+
+</Steps>
+
+## Using a saved template instead
+
+If you've built a template in the dashboard (a background image with editable text/image/QR "hotspots"), you don't need to hand-write `canvas`/`layers` at all — just send the template's ID and the values to fill in:
+
+```bash
+curl -X POST https://api.drawtab.app/v1/render \
+  -H "Authorization: Bearer dt_live_YOUR_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "templateId": "YOUR_TEMPLATE_ID",
+    "variables": { "name": "Sarah Chen", "role": "Keynote Speaker" },
+    "format": "png",
+    "responseType": "json"
+  }'
+```
+
+See [Templates](/templates) for how hotspots and variables map to each other, and [API Reference](/api-reference/render) for the full request/response contract either way.
+
+## Next steps
+
+- [Authentication](/authentication) — how keys, scopes, and revocation work
+- [Rate Limits](/rate-limits) — what happens if you call too fast
+- [Billing & Credits](/billing-and-credits) — what a render costs and what happens at zero balance

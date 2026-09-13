@@ -1,0 +1,63 @@
+import { Callout } from 'nextra/components'
+
+# Errors
+
+Every error response is JSON, shaped as:
+
+```json
+{ "success": false, "error": "Human-readable message", "code": "machine_readable_code" }
+```
+
+Build your error handling against `code`, not the `error` message string — the message text may change without notice, `code` won't.
+
+## Authentication & authorization
+
+| Status | `code` | Cause | Fix |
+|---|---|---|---|
+| `401` | `missing_api_key` | No `Authorization` header, or it isn't `Bearer <key>` | Add `Authorization: Bearer dt_live_...` |
+| `401` | `invalid_api_key` | The key doesn't match any issued key, or is malformed | Double-check the key; regenerate if it was never a real key |
+| `401` | `revoked_api_key` | The key was revoked in the dashboard | Generate a new key |
+| `403` | `insufficient_scope` | The key doesn't have the `render:write` scope | Generate a key with `render:write`, or add the scope to an existing key |
+
+## Request validation
+
+| Status | `code` | Cause | Fix |
+|---|---|---|---|
+| `400` | *(none)* | Body isn't valid JSON | Check your JSON encoding |
+| `400` | *(none)* | Body matches neither the `{templateId}` nor `{canvas, layers}` shape | See [`POST /v1/render`](/api-reference/render) for the two accepted shapes |
+| `404` | `template_not_found` | `templateId` doesn't exist, or belongs to a different workspace | Verify the ID in the dashboard. Cross-tenant IDs intentionally 404 rather than 403 |
+
+## Rate limits & billing
+
+| Status | `code` | Cause | Fix |
+|---|---|---|---|
+| `429` | `rate_limited` | More than the per-key rate limit in the last 60 seconds | Back off and retry — see the `Retry-After` header and [Rate Limits](/rate-limits) |
+| `402` | *(none — see `paywall` object)* | Workspace render-credit balance is below the cost of one render | Top up credits or upgrade your plan — see [Billing & Credits](/billing-and-credits) |
+
+A `402` response includes a `paywall` object with more detail:
+
+```json
+{
+  "success": false,
+  "error": "Insufficient credits (0 credits / ~0 renders remaining, 10 credits required per render).",
+  "paywall": {
+    "required": true,
+    "reason": "CREDITS_EXHAUSTED",
+    "balance": 0,
+    "rendersRemaining": 0,
+    "upgradeUrl": "/dashboard/billing",
+    "message": "Credits depleted. Upgrade your subscription or top up credits to continue rendering unbranded graphics."
+  }
+}
+```
+
+## Server / upstream errors
+
+| Status | Cause |
+|---|---|
+| `5xx` | The render engine returned an error for this specific payload (e.g. an unreachable image URL, or a malformed layer) — check `details` in the response body |
+| `500` | An unexpected server-side error. If this persists, it's worth reporting |
+
+<Callout type="info">
+  Transient `5xx`/network errors are worth a small number of retries with backoff. `401`, `403`, `400`, and `404` will not succeed on retry without changing the request.
+</Callout>

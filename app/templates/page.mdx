@@ -1,0 +1,50 @@
+import { Callout } from 'nextra/components'
+
+# Templates
+
+A template is a reusable design — a background image plus a set of editable **hotspots** — built visually in the [dashboard's](https://workspace.drawtab.app) Template Studio. Once built, you render it over and over by sending different values, without re-describing the layout every time.
+
+This is the recommended way to integrate Drawtab for most use cases (event passes, certificates, social cards): design once in the dashboard, then call the API with just the per-recipient data.
+
+## Hotspots and variables
+
+Each editable region on a template — a name field, a photo, a QR code — is a **hotspot**. When you render with `templateId` + `variables`, each hotspot's value is looked up from `variables` by, in order of preference:
+
+1. The hotspot's `variableKey` (set explicitly in the Template Studio)
+2. The hotspot's `label`
+3. The hotspot's `type`
+
+If none of those keys are present in `variables`, the hotspot's configured default value is used instead — so a render call can omit variables for hotspots you want to leave at their defaults.
+
+```json
+{
+  "templateId": "68f1a2b3c4d5e6f7a8b9",
+  "variables": {
+    "name": "Sarah Chen",
+    "role": "Keynote Speaker",
+    "photo": "https://example.com/sarah.jpg"
+  }
+}
+```
+
+<Callout type="info">
+  Check a template's hotspot keys in the Template Studio before wiring up an integration — the variable key shown there is exactly what your `variables` object's keys need to match.
+</Callout>
+
+## Hotspot types
+
+| Type | What you pass in `variables` |
+|---|---|
+| Text | A string |
+| Image / photo | An image URL |
+| QR code | The value to encode (a URL, plain text, etc.) |
+
+Text hotspots carry their own font, size, color, and alignment settings configured in the Template Studio — you only supply the text content, not the styling, at render time.
+
+## Ownership
+
+A template belongs to the workspace it was created in. An API key can only render templates that belong to its own workspace — a `templateId` from another workspace (or one that doesn't exist) returns `404`, the same as a nonexistent one, so response codes can't be used to enumerate other workspaces' template IDs.
+
+## When to use a custom canvas instead
+
+If your use case doesn't fit a fixed template — fully dynamic layouts, a one-off graphic, programmatically-generated positioning — describe the image directly with `canvas` + `layers` instead. See [`POST /v1/render`](/api-reference/render) and [Layer Types](/api-reference/layers).

@@ -1,0 +1,24 @@
+import { Callout } from 'nextra/components'
+
+# Webhooks
+
+<Callout type="warning">
+  **Not available yet.** You can register a webhook URL and signing secret from the dashboard's Developers page today, but nothing currently dispatches events to it — no request is sent to your endpoint on render completion or any other event. Don't build against this until it's announced as live; this page describes the intended shape so you know what's coming.
+</Callout>
+
+## Intended design
+
+Once live, webhooks will let Drawtab notify your server about events instead of you polling:
+
+| Event | Fires when |
+|---|---|
+| `render.completed` | A render finishes successfully |
+| `render.failed` | A render fails |
+| `batch.finished` | A batch render job finishes |
+| `template.created` | A new template is created in your workspace |
+
+Each webhook is registered with a URL and gets a unique signing secret (`whsec_...`), intended for verifying that a payload genuinely came from Drawtab — the standard HMAC-over-the-raw-body pattern used by Stripe, GitHub, and similar platforms. The exact signature header and verification steps will be documented here once dispatch is implemented.
+
+## What to do in the meantime
+
+Poll instead: after issuing a render, use the response you already get back from [`POST /v1/render`](/api-reference/render) synchronously — there's no separate async job status to check, since the endpoint returns the finished image (or a clear error) in the same request.

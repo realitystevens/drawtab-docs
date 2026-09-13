@@ -1,0 +1,117 @@
+import { Tabs } from 'nextra/components'
+
+# Layer types
+
+When rendering with a custom `canvas` + `layers` payload (see [`POST /v1/render`](/api-reference/render)), each entry in `layers` is one of four types: `text`, `image`, `qrcode`, or `shape`. Layers are drawn in array order — later entries are drawn on top of earlier ones.
+
+## Shared fields
+
+Every layer type accepts:
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `type` | `string` | Yes | `"text"` \| `"image"` \| `"qrcode"` \| `"shape"` |
+| `id` | `string` | No | Your own identifier for the layer (not used by the engine) |
+| `name` | `string` | No | A human-readable label (shown in the dashboard's Template Studio, has no rendering effect) |
+| `x` / `y` | `number` | Yes | Top-left position in pixels |
+| `width` / `height` | `number` | Yes | Size in pixels |
+| `opacity` | `number` | No | `0`–`1` |
+| `rotation` | `number` | No | Degrees |
+| `shadow` | `object` | No | `{ color?, blur?, offsetX?, offsetY? }` |
+
+## `text`
+
+| Field | Type | Description |
+|---|---|---|
+| `text` | `string` | The string to render |
+| `fontFamily` | `string` | Font name. Drawtab ships a bundled font set; `customFontUrl` lets you use any other font |
+| `customFontUrl` | `string` | URL to a font file to load for this layer |
+| `fontSize` | `number` | Point size |
+| `minFontSize` | `number` | Floor used when `autoFit` shrinks text to fit its box |
+| `fontWeight` | `string` | `"normal"` \| `"bold"` \| `"100"`–`"900"` |
+| `fontStyle` | `string` | `"normal"` \| `"italic"` |
+| `color` | `string` | Hex/RGB color |
+| `textAlign` | `string` | `"left"` \| `"center"` \| `"right"` |
+| `verticalAlign` | `string` | `"top"` \| `"middle"` \| `"bottom"` |
+| `lineHeight` | `number` | Line height multiplier |
+| `letterSpacing` | `number` | Pixels between characters |
+| `maxLines` | `number` | Truncate after this many lines |
+| `wrap` | `boolean` | Wrap text within `width` |
+| `autoFit` | `boolean` | Shrink `fontSize` down to `minFontSize` so the text fits its box |
+| `textTransform` | `string` | `"none"` \| `"uppercase"` \| `"lowercase"` \| `"capitalize"` |
+| `textDecoration` | `string` | `"none"` \| `"underline"` \| `"line-through"` |
+| `stroke` | `object` | `{ color?, width? }` — an outline around the text |
+
+```json
+{
+  "type": "text",
+  "x": 40, "y": 160, "width": 720, "height": 100,
+  "text": "Hello, world",
+  "fontFamily": "Inter",
+  "fontSize": 48,
+  "fontWeight": "bold",
+  "color": "#ffffff",
+  "textAlign": "center",
+  "autoFit": true
+}
+```
+
+## `image`
+
+| Field | Type | Description |
+|---|---|---|
+| `url` | `string` | A publicly reachable image URL |
+| `mask` | `string` | `"none"` \| `"circle"` \| `"squircle"` \| `"rounded"` |
+| `borderRadius` | `number` | Used with `mask: "rounded"` |
+| `fit` | `string` | `"cover"` \| `"contain"` \| `"fill"` |
+| `border` | `object` | `{ color?, width? }` |
+| `fallbackColor` | `string` | Background shown if `url` fails to load |
+
+```json
+{
+  "type": "image",
+  "x": 60, "y": 60, "width": 100, "height": 100,
+  "url": "https://example.com/avatar.jpg",
+  "mask": "circle",
+  "fit": "cover"
+}
+```
+
+## `qrcode`
+
+| Field | Type | Description |
+|---|---|---|
+| `data` | `string` | The value to encode (a URL, plain text, etc.) |
+| `colorDark` | `string` | Foreground module color. Default `#000000` |
+| `colorLight` | `string` | Background color. Default `#ffffff` |
+| `margin` | `number` | Quiet-zone size, in modules |
+| `errorCorrectionLevel` | `string` | `"L"` \| `"M"` \| `"Q"` \| `"H"` |
+| `borderRadius` | `number` | Rounds the QR code's bounding box |
+
+```json
+{
+  "type": "qrcode",
+  "x": 900, "y": 60, "width": 120, "height": 120,
+  "data": "https://drawtab.app",
+  "errorCorrectionLevel": "M"
+}
+```
+
+## `shape`
+
+| Field | Type | Description |
+|---|---|---|
+| `shapeType` | `string` | `"rectangle"` \| `"rounded_rectangle"` \| `"circle"` \| `"pill"` \| `"line"` |
+| `fillColor` | `string` | Fill color |
+| `border` | `object` | `{ color?, width? }` |
+| `borderRadius` | `number` | Used with `shapeType: "rounded_rectangle"` |
+
+```json
+{
+  "type": "shape",
+  "x": 0, "y": 380, "width": 1200, "height": 250,
+  "shapeType": "rectangle",
+  "fillColor": "#0f172a",
+  "opacity": 0.6
+}
+```

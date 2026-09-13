@@ -1,0 +1,148 @@
+import { Callout, Tabs } from 'nextra/components'
+
+# SDKs & examples
+
+<Callout type="info">
+  There's no official client SDK yet — `POST /v1/render` is a plain REST endpoint, so any HTTP client works. The examples below cover the two request shapes in three languages.
+</Callout>
+
+## Render from a template
+
+<Tabs items={['cURL', 'Node.js', 'Python']}>
+  <Tabs.Tab>
+    ```bash
+    curl -X POST https://api.drawtab.app/v1/render \
+      -H "Authorization: Bearer $DRAWTAB_API_KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "templateId": "YOUR_TEMPLATE_ID",
+        "variables": { "name": "Sarah Chen", "role": "Keynote Speaker" },
+        "format": "png",
+        "responseType": "json"
+      }'
+    ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+    ```js
+    async function renderFromTemplate(templateId, variables) {
+      const res = await fetch('https://api.drawtab.app/v1/render', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${process.env.DRAWTAB_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ templateId, variables, format: 'png', responseType: 'json' }),
+      })
+
+      if (!res.ok) {
+        const err = await res.json()
+        throw new Error(`Drawtab render failed (${err.code}): ${err.error}`)
+      }
+
+      return res.json() // { dataUrl, base64, billing, ... }
+    }
+    ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+    ```python
+    import os
+    import requests
+
+    def render_from_template(template_id: str, variables: dict) -> dict:
+        res = requests.post(
+            "https://api.drawtab.app/v1/render",
+            headers={
+                "Authorization": f"Bearer {os.environ['DRAWTAB_API_KEY']}",
+                "Content-Type": "application/json",
+            },
+            json={
+                "templateId": template_id,
+                "variables": variables,
+                "format": "png",
+                "responseType": "json",
+            },
+        )
+        res.raise_for_status()
+        return res.json()
+    ```
+  </Tabs.Tab>
+</Tabs>
+
+## Render a custom canvas and save it to disk
+
+<Tabs items={['cURL', 'Node.js', 'Python']}>
+  <Tabs.Tab>
+    ```bash
+    curl -X POST https://api.drawtab.app/v1/render \
+      -H "Authorization: Bearer $DRAWTAB_API_KEY" \
+      -H "Content-Type: application/json" \
+      -o output.png \
+      -d '{
+        "canvas": { "width": 1200, "height": 630, "backgroundColor": "#0f172a" },
+        "layers": [
+          { "type": "text", "x": 60, "y": 280, "width": 1080, "height": 80, "text": "Hello, world", "fontSize": 48, "color": "#ffffff" }
+        ],
+        "format": "png",
+        "responseType": "binary"
+      }'
+    ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+    ```js
+    import { writeFile } from 'node:fs/promises'
+
+    const res = await fetch('https://api.drawtab.app/v1/render', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${process.env.DRAWTAB_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        canvas: { width: 1200, height: 630, backgroundColor: '#0f172a' },
+        layers: [
+          { type: 'text', x: 60, y: 280, width: 1080, height: 80, text: 'Hello, world', fontSize: 48, color: '#ffffff' },
+        ],
+        format: 'png',
+        responseType: 'binary',
+      }),
+    })
+
+    if (!res.ok) throw new Error(await res.text())
+
+    await writeFile('output.png', Buffer.from(await res.arrayBuffer()))
+    ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+    ```python
+    import os
+    import requests
+
+    res = requests.post(
+        "https://api.drawtab.app/v1/render",
+        headers={
+            "Authorization": f"Bearer {os.environ['DRAWTAB_API_KEY']}",
+            "Content-Type": "application/json",
+        },
+        json={
+            "canvas": {"width": 1200, "height": 630, "backgroundColor": "#0f172a"},
+            "layers": [
+                {"type": "text", "x": 60, "y": 280, "width": 1080, "height": 80,
+                 "text": "Hello, world", "fontSize": 48, "color": "#ffffff"}
+            ],
+            "format": "png",
+            "responseType": "binary",
+        },
+    )
+    res.raise_for_status()
+
+    with open("output.png", "wb") as f:
+        f.write(res.content)
+    ```
+  </Tabs.Tab>
+</Tabs>
+
+## More
+
+- [`POST /v1/render` reference](/api-reference/render) — full request/response contract
+- [Layer Types](/api-reference/layers) — every field for `text`, `image`, `qrcode`, `shape`
+- [Errors](/api-reference/errors) — status codes and how to handle each

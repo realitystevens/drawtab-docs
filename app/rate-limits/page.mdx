@@ -1,0 +1,53 @@
+import { Callout } from 'nextra/components'
+
+# Rate limits
+
+`POST /v1/render` enforces a per-API-key rate limit, separate from your workspace's render-credit balance.
+
+## Limit
+
+**60 requests per minute, per API key**, on a sliding 60-second window. Configurable per-deployment via `API_KEY_RATE_LIMIT_PER_MIN`, but 60/min is the default and what you should assume.
+
+Rate limiting is checked **before** billing — an over-limit request gets `429` even if your workspace has plenty of credits, and a request that would otherwise fail on credits (`402`) still counts toward your rate limit.
+
+<Callout type="info">
+  The limit is per **key**, not per workspace. Two keys in the same workspace each get their own 60/min allowance.
+</Callout>
+
+## What happens when you're limited
+
+```json
+{ "success": false, "error": "Rate limit exceeded for this API key.", "code": "rate_limited" }
+```
+
+with an HTTP `429` and a `Retry-After` header giving the number of seconds to wait before the window has room again.
+
+## Why this exists
+
+Render credits are your primary cost control — every render already costs credits regardless of rate limiting (see [Billing & Credits](/billing-and-credits)). This limit exists as a backstop against a leaked key or a broken retry loop hammering the endpoint, not as your main throttle.
+
+## Handling 429 responses
+
+Respect `Retry-After` rather than retrying immediately. A simple approach:
+
+```js
+async function renderWithRetry(payload, { maxRetries = 3 } = {}) {
+  for (let attempt = 0; ; attempt++) {
+    const res = await fetch('https://api.drawtab.app/v1/render', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${process.env.DRAWTAB_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    })
+
+    if (res.status !== 429 || attempt >= maxRetries) return res
+
+    const retryAfter = Number(res.headers.get('Retry-After')) || 1
+    await new Promise((r) => setTimeout(r, retryAfter * 1000))
+  }
+}
+```
+
+If you're regularly hitting 60 requests per minute from a single key, consider spreading load across multiple keys (one per service/integration) rather than raising the limit — it also makes it easier to tell which integration is generating traffic if you ever need to revoke one.

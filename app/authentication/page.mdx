@@ -1,0 +1,54 @@
+import { Callout } from 'nextra/components'
+
+# Authentication
+
+Every call to `/v1/render` must include an API key in the `Authorization` header:
+
+```
+Authorization: Bearer dt_live_a1b2c3d4...
+```
+
+Requests without a valid key are rejected before any rendering or billing happens.
+
+## Key format
+
+Keys look like `dt_live_` followed by 64 hex characters — 256 bits of randomness generated in your browser when you click **Generate Key** in the dashboard. There is currently one key format (`dt_live_...`); there's no separate "test mode" prefix, so treat every key as a live, billable credential.
+
+## How keys are stored (and why you can trust it)
+
+The raw key is shown to you **exactly once**, at creation time. Drawtab never stores it — only a SHA-256 hash of it is saved. When you make a request, Drawtab hashes your key the same way and looks up the match. This means:
+
+- Nobody at Drawtab — including in a database breach — can recover your raw key.
+- Drawtab support **cannot** look up or re-display a lost key. If you lose one, revoke it and generate a new one.
+
+<Callout type="warning">
+  Treat your API key like a password. Don't commit it to source control, embed it in client-side/browser code, or share it in support tickets — put it in a server-side environment variable.
+</Callout>
+
+## Scopes
+
+Each key is created with one or more scopes, chosen when you generate it:
+
+| Scope | Meaning |
+|---|---|
+| `render:write` | **Required** to call `POST /v1/render`. Every key that will make render calls needs this. |
+| `render:read` | Reserved for future read-only render/job-status endpoints. Not yet enforced by anything. |
+| `templates:read` | Reserved for a future templates-listing endpoint. Not yet enforced. |
+| `templates:write` | Reserved for future template-management endpoints. Not yet enforced. |
+| `batch:write` | Reserved for a future batch-rendering endpoint. Not yet enforced. |
+
+A key missing `render:write` gets a `403` with `code: "insufficient_scope"` on any render call. The other scopes exist so you can scope a key down in advance of the endpoints that will consume them, but nothing checks them yet.
+
+## Revoking a key
+
+From **Developers → API Keys** in the dashboard, click revoke on any key. Revocation takes effect immediately — the very next request with that key is rejected with `401` (`code: "revoked_api_key"`). There's no "undo"; generate a new key if you need one.
+
+There's no separate "rotate" action — to rotate a key, generate a new one, update your integration, then revoke the old one once you've confirmed the new one works.
+
+## Per-workspace scoping
+
+A key is permanently tied to the workspace it was created in. The workspace is resolved from the key itself on every request — it is **not** something you can pass in the request body or headers, by design. This means a key can only ever render against, and consume credits from, its own workspace, with no way to target another one even if you know its ID.
+
+## Error responses
+
+See [Errors](/api-reference/errors) for the full table of authentication-related status codes and `code` values.

@@ -1,0 +1,210 @@
+import { Callout, Tabs } from 'nextra/components'
+
+# `POST /v1/render`
+
+Renders an image and returns it, synchronously, in a single request.
+
+```
+POST https://api.drawtab.app/v1/render
+```
+
+## Headers
+
+| Header | Required | Description |
+|---|---|---|
+| `Authorization` | Yes | `Bearer dt_live_...` — see [Authentication](/authentication) |
+| `Content-Type` | Yes | `application/json` |
+
+<Callout type="info">
+  This endpoint is safe to call directly from a browser or from any origin — it responds with permissive CORS headers, since authentication is a bearer token rather than cookies. It does not use session cookies of any kind.
+</Callout>
+
+## Request body
+
+There are two ways to describe what to render. Send **one** of the two shapes below — not both.
+
+### Shape 1 — a saved template
+
+The easy path: point at a template you built in the [dashboard](https://workspace.drawtab.app) and fill in its variables.
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `templateId` | `string` | Yes | The template's ID, from the dashboard |
+| `variables` | `object` | No | Maps each hotspot's variable key (or label) to a value — see [Templates](/templates) |
+| `format` | `string` | No | `png` \| `jpeg` \| `jpg` \| `webp` \| `avif`. Default `png` |
+| `quality` | `number` | No | `1`–`100`. Default `90` |
+| `responseType` | `string` | No | `json` \| `binary` \| `base64`. Default `json` for this shape |
+
+```json
+{
+  "templateId": "68f1a2b3c4d5e6f7a8b9",
+  "variables": {
+    "name": "Sarah Chen",
+    "role": "Keynote Speaker"
+  },
+  "format": "png",
+  "quality": 90,
+  "responseType": "json"
+}
+```
+
+The template must belong to the same workspace as your API key. A `templateId` that doesn't exist, or belongs to a different workspace, returns `404` — not `403` — so a caller can't use response codes to enumerate other workspaces' template IDs.
+
+### Shape 2 — a custom canvas
+
+Full control: describe the canvas and every layer yourself. See [Layer Types](/api-reference/layers) for the complete field reference for each layer.
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `canvas` | `object` | Yes | `{ width, height, backgroundColor? }` — width/height are integers, `1`–`8192` |
+| `layers` | `array` | Yes | Array of layer objects (`text`, `image`, `qrcode`, or `shape`) — see [Layer Types](/api-reference/layers) |
+| `format` | `string` | No | `png` \| `jpeg` \| `jpg` \| `webp` \| `avif`. Default `png` |
+| `quality` | `number` | No | `1`–`100`. Default `90` |
+| `responseType` | `string` | No | `json` \| `binary` \| `base64`. Default `binary` for this shape |
+| `metadata` | `object` | No | Arbitrary key/value pairs echoed back in the response and shown against the render in your dashboard's render log |
+
+```json
+{
+  "canvas": { "width": 1200, "height": 630, "backgroundColor": "#0f172a" },
+  "layers": [
+    {
+      "type": "text",
+      "x": 60, "y": 60, "width": 1080, "height": 80,
+      "text": "Hello, world",
+      "fontFamily": "Inter",
+      "fontSize": 48,
+      "fontWeight": "bold",
+      "color": "#ffffff"
+    }
+  ],
+  "format": "png",
+  "responseType": "json"
+}
+```
+
+<Callout type="warning">
+  Any `workspaceId` field you include in either shape is ignored. The workspace is always resolved from the API key itself — there is no way to render against a workspace other than the one your key belongs to.
+</Callout>
+
+## Response
+
+### `responseType: "json"` or `"base64"`
+
+Returns a JSON body:
+
+| Field | Type | Description |
+|---|---|---|
+| `success` | `boolean` | `true` on a successful render |
+| `format` | `string` | The output format actually used |
+| `width` / `height` | `number` | Final pixel dimensions |
+| `durationMs` | `number` | Server-side render time |
+| `sizeBytes` | `number` | Size of the encoded image |
+| `base64` | `string` | The image, base64-encoded |
+| `dataUrl` | `string` | Ready-to-use `data:image/...;base64,...` URL |
+| `billing` | `object` | `{ creditsRemaining, rendersRemaining, creditsCost, watermarked, isFreeTier }` — see [Billing & Credits](/billing-and-credits) |
+
+```json
+{
+  "success": true,
+  "format": "png",
+  "width": 1200,
+  "height": 630,
+  "durationMs": 121.15,
+  "sizeBytes": 9754,
+  "base64": "iVBORw0KGgoAAAANSUhEUgAA...",
+  "dataUrl": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...",
+  "billing": {
+    "creditsRemaining": 140,
+    "rendersRemaining": 14,
+    "creditsCost": 10,
+    "watermarked": false,
+    "isFreeTier": false
+  }
+}
+```
+
+### `responseType: "binary"` (or omitted, with the custom-canvas shape)
+
+Returns the raw image bytes with `Content-Type` set to the appropriate image MIME type, plus response headers:
+
+| Header | Description |
+|---|---|
+| `X-Render-Duration-Ms` | Server-side render time |
+| `X-Canvas-Width` / `X-Canvas-Height` | Final pixel dimensions |
+| `X-Drawtab-Watermark` | `true`/`false` — see [Billing & Credits](/billing-and-credits) |
+| `X-Drawtab-Credits-Remaining` | Workspace credit balance after this render |
+| `X-Drawtab-Renders-Remaining` | Approximate renders left at the standard cost |
+
+## Errors
+
+All error responses share this shape:
+
+```json
+{ "success": false, "error": "Human-readable message", "code": "machine_readable_code" }
+```
+
+See [Errors](/api-reference/errors) for the full table of status codes and `code` values.
+
+## Example
+
+<Tabs items={['cURL', 'Node.js', 'Python']}>
+  <Tabs.Tab>
+    ```bash
+    curl -X POST https://api.drawtab.app/v1/render \
+      -H "Authorization: Bearer dt_live_YOUR_KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "templateId": "YOUR_TEMPLATE_ID",
+        "variables": { "name": "Sarah Chen", "role": "Keynote Speaker" },
+        "format": "png",
+        "responseType": "json"
+      }'
+    ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+    ```js
+    const res = await fetch('https://api.drawtab.app/v1/render', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${process.env.DRAWTAB_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        templateId: 'YOUR_TEMPLATE_ID',
+        variables: { name: 'Sarah Chen', role: 'Keynote Speaker' },
+        format: 'png',
+        responseType: 'json',
+      }),
+    })
+
+    if (!res.ok) {
+      const err = await res.json()
+      throw new Error(`${err.code}: ${err.error}`)
+    }
+
+    const { dataUrl, billing } = await res.json()
+    ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+    ```python
+    import os
+    import requests
+
+    res = requests.post(
+        "https://api.drawtab.app/v1/render",
+        headers={
+            "Authorization": f"Bearer {os.environ['DRAWTAB_API_KEY']}",
+            "Content-Type": "application/json",
+        },
+        json={
+            "templateId": "YOUR_TEMPLATE_ID",
+            "variables": {"name": "Sarah Chen", "role": "Keynote Speaker"},
+            "format": "png",
+            "responseType": "json",
+        },
+    )
+    res.raise_for_status()
+    data = res.json()
+    ```
+  </Tabs.Tab>
+</Tabs>

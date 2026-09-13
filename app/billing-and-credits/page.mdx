@@ -1,0 +1,53 @@
+import { Callout } from 'nextra/components'
+
+# Billing & credits
+
+Renders are metered with **credits**, deducted from your workspace's balance on every successful render.
+
+## Cost per render
+
+A standard render costs **10 credits**, regardless of image size, format, or which layer types you use.
+
+## Plans
+
+| Plan | Monthly credits | ≈ renders/month | Watermark |
+|---|---|---|---|
+| Sandbox Free | 150 | ~15 | Yes, forced on every render |
+| Starter | 5,000 | ~500 | No |
+| Growth | 25,000 | ~2,500 | No |
+| Scale | 100,000 | ~10,000 | No |
+
+Unused monthly credits don't roll over. You can also purchase one-off top-up credit packs, which are consumed only after your monthly allowance runs out.
+
+<Callout type="warning">
+  On the **Sandbox Free** plan, every render is watermarked server-side — this is enforced in the render pipeline itself, not just the client SDKs, so there's no request parameter that can suppress it. Upgrading removes the watermark going forward.
+</Callout>
+
+## Checking your balance
+
+Every successful render response includes a `billing` block (JSON responses) or `X-Drawtab-Credits-Remaining` / `X-Drawtab-Renders-Remaining` headers (binary responses) — see [`POST /v1/render`](/api-reference/render). There's no separate "check my balance" endpoint yet; read it off the response of your last render, or check the dashboard.
+
+## Running out of credits
+
+A render attempted with insufficient balance returns `402` before any rendering happens — you are never charged for a render that didn't complete:
+
+```json
+{
+  "success": false,
+  "error": "Insufficient credits (0 credits / ~0 renders remaining, 10 credits required per render).",
+  "paywall": {
+    "required": true,
+    "reason": "CREDITS_EXHAUSTED",
+    "balance": 0,
+    "rendersRemaining": 0,
+    "upgradeUrl": "/dashboard/billing",
+    "message": "Credits depleted. Upgrade your subscription or top up credits to continue rendering unbranded graphics."
+  }
+}
+```
+
+Top up or upgrade from **Billing** in the [dashboard](https://workspace.drawtab.app/dashboard/billing).
+
+## Relationship to rate limits
+
+Credits and [rate limits](/rate-limits) are independent controls. Running low on credits doesn't relax your rate limit, and staying under the rate limit doesn't protect you from running out of credits. Both are checked on every request.
