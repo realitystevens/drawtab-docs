@@ -15,6 +15,14 @@ h6 {
   font-family: var(--font-bricolage), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 }
 
+/* Navbar logo: the source SVG is a blue→teal gradient mark meant for a
+   light background. In dark mode, force it to solid white instead of
+   swapping in a second asset — brightness(0) collapses every opaque pixel
+   to black (alpha untouched), then invert(1) flips that to white. */
+.dark .site-logo {
+  filter: brightness(0) invert(1);
+}
+
 /* Title + description link cards, used on the Introduction page.
    Nextra's built-in <Cards.Card> is designed for an image/icon "cover" (its
    children render unpadded, above a separately-padded title bar) rather than

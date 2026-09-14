@@ -22,11 +22,9 @@ export const metadata = {
 const navbar = (
   <Navbar
     logo={
-      <Image src="/logo.svg" alt="Drawtab" width={135} height={30} priority />
+      <Image src="/logo.svg" alt="Drawtab" width={135} height={30} priority className="site-logo" />
     }
     logoLink="/"
-    projectLink="https://workspace.drawtab.app"
-    chatLink="https://drawtab.app"
   />
 )
 
