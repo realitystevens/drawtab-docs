@@ -33,7 +33,7 @@ Respect `Retry-After` rather than retrying immediately. A simple approach:
 ```js
 async function renderWithRetry(payload, { maxRetries = 3 } = {}) {
   for (let attempt = 0; ; attempt++) {
-    const res = await fetch('https://api.drawtab.app/v1/render', {
+    const res = await fetch('https://core.drawtab.app/v1/render', {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${process.env.DRAWTAB_API_KEY}`,

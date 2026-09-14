@@ -5,7 +5,7 @@ import { Callout, Tabs } from 'nextra/components'
 Renders an image and returns it, synchronously, in a single request.
 
 ```
-POST https://api.drawtab.app/v1/render
+POST https://core.drawtab.app/v1/render
 ```
 
 ## Headers
@@ -150,7 +150,7 @@ See [Errors](/api-reference/errors) for the full table of status codes and `code
 <Tabs items={['cURL', 'Node.js', 'Python']}>
   <Tabs.Tab>
     ```bash
-    curl -X POST https://api.drawtab.app/v1/render \
+    curl -X POST https://core.drawtab.app/v1/render \
       -H "Authorization: Bearer dt_live_YOUR_KEY" \
       -H "Content-Type: application/json" \
       -d '{
@@ -163,7 +163,7 @@ See [Errors](/api-reference/errors) for the full table of status codes and `code
   </Tabs.Tab>
   <Tabs.Tab>
     ```js
-    const res = await fetch('https://api.drawtab.app/v1/render', {
+    const res = await fetch('https://core.drawtab.app/v1/render', {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${process.env.DRAWTAB_API_KEY}`,
@@ -191,7 +191,7 @@ See [Errors](/api-reference/errors) for the full table of status codes and `code
     import requests
 
     res = requests.post(
-        "https://api.drawtab.app/v1/render",
+        "https://core.drawtab.app/v1/render",
         headers={
             "Authorization": f"Bearer {os.environ['DRAWTAB_API_KEY']}",
             "Content-Type": "application/json",
