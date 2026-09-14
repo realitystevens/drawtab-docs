@@ -22,7 +22,7 @@ Your key looks like `dt_live_a1b2c3...` and is shown **exactly once**. Copy it n
 <Tabs items={['cURL', 'Node.js', 'Python']}>
   <Tabs.Tab>
     ```bash
-    curl -X POST https://core.drawtab.app/v1/render \
+    curl -X POST https://core.drawtab.app/api/v1/render \
       -H "Authorization: Bearer dt_live_YOUR_KEY" \
       -H "Content-Type: application/json" \
       -d '{
@@ -45,7 +45,7 @@ Your key looks like `dt_live_a1b2c3...` and is shown **exactly once**. Copy it n
   </Tabs.Tab>
   <Tabs.Tab>
     ```js
-    const res = await fetch('https://core.drawtab.app/v1/render', {
+    const res = await fetch('https://core.drawtab.app/api/v1/render', {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${process.env.DRAWTAB_API_KEY}`,
@@ -79,7 +79,7 @@ Your key looks like `dt_live_a1b2c3...` and is shown **exactly once**. Copy it n
     import requests
 
     res = requests.post(
-        "https://core.drawtab.app/v1/render",
+        "https://core.drawtab.app/api/v1/render",
         headers={
             "Authorization": f"Bearer {os.environ['DRAWTAB_API_KEY']}",
             "Content-Type": "application/json",
@@ -121,7 +121,7 @@ Prefer the raw image bytes instead of JSON? Set `"responseType": "binary"` (or o
 If you've built a template in the dashboard (a background image with editable text/image/QR "hotspots"), you don't need to hand-write `canvas`/`layers` at all — just send the template's ID and the values to fill in:
 
 ```bash
-curl -X POST https://core.drawtab.app/v1/render \
+curl -X POST https://core.drawtab.app/api/v1/render \
   -H "Authorization: Bearer dt_live_YOUR_KEY" \
   -H "Content-Type: application/json" \
   -d '{

@@ -11,7 +11,7 @@ import { Callout, Tabs } from 'nextra/components'
 <Tabs items={['cURL', 'Node.js', 'Python']}>
   <Tabs.Tab>
     ```bash
-    curl -X POST https://core.drawtab.app/v1/render \
+    curl -X POST https://core.drawtab.app/api/v1/render \
       -H "Authorization: Bearer $DRAWTAB_API_KEY" \
       -H "Content-Type: application/json" \
       -d '{
@@ -25,7 +25,7 @@ import { Callout, Tabs } from 'nextra/components'
   <Tabs.Tab>
     ```js
     async function renderFromTemplate(templateId, variables) {
-      const res = await fetch('https://core.drawtab.app/v1/render', {
+      const res = await fetch('https://core.drawtab.app/api/v1/render', {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${process.env.DRAWTAB_API_KEY}`,
@@ -50,7 +50,7 @@ import { Callout, Tabs } from 'nextra/components'
 
     def render_from_template(template_id: str, variables: dict) -> dict:
         res = requests.post(
-            "https://core.drawtab.app/v1/render",
+            "https://core.drawtab.app/api/v1/render",
             headers={
                 "Authorization": f"Bearer {os.environ['DRAWTAB_API_KEY']}",
                 "Content-Type": "application/json",
@@ -73,7 +73,7 @@ import { Callout, Tabs } from 'nextra/components'
 <Tabs items={['cURL', 'Node.js', 'Python']}>
   <Tabs.Tab>
     ```bash
-    curl -X POST https://core.drawtab.app/v1/render \
+    curl -X POST https://core.drawtab.app/api/v1/render \
       -H "Authorization: Bearer $DRAWTAB_API_KEY" \
       -H "Content-Type: application/json" \
       -o output.png \
@@ -91,7 +91,7 @@ import { Callout, Tabs } from 'nextra/components'
     ```js
     import { writeFile } from 'node:fs/promises'
 
-    const res = await fetch('https://core.drawtab.app/v1/render', {
+    const res = await fetch('https://core.drawtab.app/api/v1/render', {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${process.env.DRAWTAB_API_KEY}`,
@@ -118,7 +118,7 @@ import { Callout, Tabs } from 'nextra/components'
     import requests
 
     res = requests.post(
-        "https://core.drawtab.app/v1/render",
+        "https://core.drawtab.app/api/v1/render",
         headers={
             "Authorization": f"Bearer {os.environ['DRAWTAB_API_KEY']}",
             "Content-Type": "application/json",
