@@ -33,7 +33,7 @@ const navbar = (
 const footer = (
   <Footer>
     <span>
-      © {new Date().getFullYear()} Drawtab ·{' '}
+      © 2026 Drawtab by Digisept LTD ·{' '}
       <a href="https://drawtab.app" target="_blank" rel="noreferrer">
         drawtab.app
       </a>{' '}
