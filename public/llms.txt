@@ -33,10 +33,10 @@ Accepts either an engine-native payload (`{canvas, layers}`) or a saved template
 
 ## Key Facts
 
-- A standard render costs **10 credits**. Free Sandbox workspaces start with 150 credits (~15 renders) and produce watermarked output.
+- A standard render costs **10 credits**. Free Sandbox workspaces start with 150 credits (~15 renders).
 - Rate limit is **60 requests/minute per API key**, returning `429` with a `Retry-After` header.
 - The raw API key is shown exactly once at creation; only its SHA-256 hash is stored server-side and it can never be retrieved again.
-- Admin-granted (gifted) credits are spent before subscription or top-up credits, and renders funded by them skip the free-tier watermark.
+- Admin-granted (gifted) credits are spent before subscription or top-up credits.
 
 ## Related Domains
 

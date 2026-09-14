@@ -101,7 +101,7 @@ Returns a JSON body:
 | `sizeBytes` | `number` | Size of the encoded image |
 | `base64` | `string` | The image, base64-encoded |
 | `dataUrl` | `string` | Ready-to-use `data:image/...;base64,...` URL |
-| `billing` | `object` | `{ creditsRemaining, rendersRemaining, creditsCost, watermarked, isFreeTier }` — see [Billing & Credits](/billing-and-credits) |
+| `billing` | `object` | `{ creditsRemaining, rendersRemaining, creditsCost, isFreeTier }` — see [Billing & Credits](/billing-and-credits) |
 
 ```json
 {
@@ -117,7 +117,6 @@ Returns a JSON body:
     "creditsRemaining": 140,
     "rendersRemaining": 14,
     "creditsCost": 10,
-    "watermarked": false,
     "isFreeTier": false
   }
 }
@@ -131,7 +130,6 @@ Returns the raw image bytes with `Content-Type` set to the appropriate image MIM
 |---|---|
 | `X-Render-Duration-Ms` | Server-side render time |
 | `X-Canvas-Width` / `X-Canvas-Height` | Final pixel dimensions |
-| `X-Drawtab-Watermark` | `true`/`false` — see [Billing & Credits](/billing-and-credits) |
 | `X-Drawtab-Credits-Remaining` | Workspace credit balance after this render |
 | `X-Drawtab-Renders-Remaining` | Approximate renders left at the standard cost |
 
