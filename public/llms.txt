@@ -1,0 +1,48 @@
+# Drawtab API Documentation
+
+> Official developer documentation for the Drawtab REST API — generate dynamic images and graphics on demand from structured data.
+
+Drawtab renders high-resolution graphics (event passes, certificates, social cards, review graphics, product badges) from a JSON payload in roughly 250ms, using native Google Skia bindings — no headless browser involved. This site documents the public REST API.
+
+**Base URL**: `https://core.drawtab.app/api/v1`
+**Authentication**: `Authorization: Bearer dt_live_...` (API keys generated at https://workspace.drawtab.app/dashboard/developers)
+
+## Documentation Pages
+
+- [Introduction](https://docs.drawtab.app/): What Drawtab is, who it's for, and how the pieces fit together.
+- [Quickstart](https://docs.drawtab.app/quickstart): Generate an API key, make your first render call with cURL/Node/Python, and see the resulting image.
+- [Authentication](https://docs.drawtab.app/authentication): API key format, the `render:write` scope requirement, SHA-256 key storage, and revocation.
+- [API Reference — Render](https://docs.drawtab.app/api-reference/render): Full `POST /api/v1/render` reference — headers, both payload shapes, response formats, and response headers.
+- [API Reference — Layers](https://docs.drawtab.app/api-reference/layers): Every layer type (`text`, `image`, `qrcode`, `shape`) with every supported field.
+- [API Reference — Errors](https://docs.drawtab.app/api-reference/errors): Status codes and machine-readable `code` values, what triggers each, and how to resolve them.
+- [Templates](https://docs.drawtab.app/templates): The `templateId` + `variables` convenience path and how hotspots/variables work.
+- [SDKs & Examples](https://docs.drawtab.app/sdks-examples): Copy-paste cURL, Node.js, and Python examples for both payload shapes.
+- [Rate Limits](https://docs.drawtab.app/rate-limits): 60 requests/minute per API key, `429` handling, and backoff guidance.
+- [Billing & Credits](https://docs.drawtab.app/billing-and-credits): Credit cost per render, plan tiers, and behaviour at zero balance.
+- [Webhooks](https://docs.drawtab.app/webhooks): Intended webhook payload shape — **not yet dispatching**, documented as coming soon.
+
+## The One Endpoint You Need
+
+```
+POST https://core.drawtab.app/api/v1/render
+Authorization: Bearer dt_live_YOUR_API_KEY
+Content-Type: application/json
+```
+
+Accepts either an engine-native payload (`{canvas, layers}`) or a saved template (`{templateId, variables}`). Returns a binary image by default, or JSON with a base64 payload when `responseType` is `json`.
+
+## Key Facts
+
+- A standard render costs **10 credits**. Free Sandbox workspaces start with 150 credits (~15 renders) and produce watermarked output.
+- Rate limit is **60 requests/minute per API key**, returning `429` with a `Retry-After` header.
+- The raw API key is shown exactly once at creation; only its SHA-256 hash is stored server-side and it can never be retrieved again.
+- Admin-granted (gifted) credits are spent before subscription or top-up credits, and renders funded by them skip the free-tier watermark.
+
+## Related Domains
+
+- **Marketing site & pricing**: https://drawtab.app
+- **Customer dashboard (API keys, templates, billing)**: https://workspace.drawtab.app
+- **Public API base**: https://core.drawtab.app/api/v1
+- **Rendering engine health**: https://engine.drawtab.app/health
+- **Status page**: https://status.drawtab.app
+- **Extended machine-readable spec**: https://drawtab.app/llms-full.txt
